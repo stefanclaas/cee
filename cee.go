@@ -41,7 +41,7 @@ func encodeCrockfordBase32(data string) string {
 		if strings.ContainsRune(base32Alphabet, rune(char)) {
 			encodedData += smileyMap[char]
 			smileysOnLine++
-			if smileysOnLine == 35 {
+			if smileysOnLine == 32 {
 				encodedData += "\n"
 				smileysOnLine = 0
 			}
@@ -82,7 +82,7 @@ func decodeCrockfordBase32(encodedData string) string {
 			}
 		}
 
-		if len(currentLine) == 35 {
+		if len(currentLine) == 32 {
 			decodedData += decodeSmileyLine(currentLine)
 			currentLine = ""
 		}
