@@ -4,5 +4,5 @@ in my original crockford-base32 encoder, to get
 properly formatted emoji messages, with a line
 length of 32 characters per line.
 
-Usage: cbase32 < message.txt | cee
+Usage: cbase32 -l 0 < message.txt | cee
 decode: cee -d < enc_msg.txt | cbase32 -d
