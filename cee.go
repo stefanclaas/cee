@@ -32,7 +32,7 @@ func init() {
 	}
 }
 
-func encodeCrockfordBase32(data string) string {
+func encodeCrockfordBase32(data string, lineLength int) string {
 	encodedData := ""
 	smileysOnLine := 0
 
@@ -41,7 +41,7 @@ func encodeCrockfordBase32(data string) string {
 		if strings.ContainsRune(base32Alphabet, rune(char)) {
 			encodedData += smileyMap[char]
 			smileysOnLine++
-			if smileysOnLine == 32 {
+			if smileysOnLine == lineLength {
 				encodedData += "\n"
 				smileysOnLine = 0
 			}
@@ -82,62 +82,59 @@ func decodeCrockfordBase32(encodedData string) string {
 			}
 		}
 
-		if len(currentLine) == 32 {
-			decodedData += decodeSmileyLine(currentLine)
-			currentLine = ""
-		}
-	}
+        // Decode any remaining characters
+        decodedData += decodeSmileyLine(currentLine)
+        currentLine = ""
+    }
 
-	// Decode any remaining characters
-	decodedData += decodeSmileyLine(currentLine)
-
-	return decodedData
+    return decodedData
 }
 
 func decodeSmileyLine(line string) string {
-	decodedLine := ""
-	for _, char := range line {
-		if decodedChar, found := reverseSmileyMap[string(char)]; found {
-			decodedLine += string(decodedChar)
-		} else {
-			decodedLine += string(char)
-		}
-	}
-	return decodedLine
+    decodedLine := ""
+    for _, char := range line {
+        if decodedChar, found := reverseSmileyMap[string(char)]; found {
+            decodedLine += string(decodedChar)
+        } else {
+            decodedLine += string(char)
+        }
+    }
+    return decodedLine
 }
 
 func smileyMapString() string {
-	var s strings.Builder
-	for char := range smileyMap {
-		s.WriteString(string(char))
-	}
-	return s.String()
+    var s strings.Builder
+    for char := range smileyMap {
+        s.WriteString(string(char))
+    }
+    return s.String()
 }
 
 func main() {
-	decodeFlag := flag.Bool("d", false, "Decode using smiley encoding")
-	flag.Parse()
+    decodeFlag := flag.Bool("d", false, "Decode using smiley encoding")
+    lineLengthFlag := flag.Int("l", 32, "Set the line length for encoding")
+    flag.Parse()
 
-	if *decodeFlag {
-		// Decoding mode
-		decodedData, err := ioutil.ReadAll(os.Stdin)
-		if err != nil {
-			fmt.Println("Error reading from stdin:", err)
-			os.Exit(1)
-		}
+    if *decodeFlag {
+        // Decoding mode
+        decodedData, err := ioutil.ReadAll(os.Stdin)
+        if err != nil {
+            fmt.Println("Error reading from stdin:", err)
+            os.Exit(1)
+        }
 
-		decodedText := decodeCrockfordBase32(string(decodedData))
-		fmt.Print(decodedText)
-	} else {
-		// Encoding mode
-		inputData, err := ioutil.ReadAll(os.Stdin)
-		if err != nil {
-			fmt.Println("Error reading from stdin:", err)
-			os.Exit(1)
-		}
+        decodedText := decodeCrockfordBase32(string(decodedData))
+        fmt.Print(decodedText)
+    } else {
+        // Encoding mode
+        inputData, err := ioutil.ReadAll(os.Stdin)
+        if err != nil {
+            fmt.Println("Error reading from stdin:", err)
+            os.Exit(1)
+        }
 
-		encodedText := encodeCrockfordBase32(string(inputData))
-		fmt.Print(encodedText)
-	}
+        encodedText := encodeCrockfordBase32(string(inputData), *lineLengthFlag)
+        fmt.Print(encodedText)
+    }
 }
 
